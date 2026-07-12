@@ -14,16 +14,228 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      donations: {
+        Row: {
+          claimed_at: string | null
+          claimed_by_ngo_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          kind: string
+          meals: number
+          original_price_cents: number | null
+          price_cents: number | null
+          restaurant_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          claimed_by_ngo_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          kind: string
+          meals?: number
+          original_price_cents?: number | null
+          price_cents?: number | null
+          restaurant_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          claimed_at?: string | null
+          claimed_by_ngo_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind?: string
+          meals?: number
+          original_price_cents?: number | null
+          price_cents?: number | null
+          restaurant_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_claimed_by_ngo_id_fkey"
+            columns: ["claimed_by_ngo_id"]
+            isOneToOne: false
+            referencedRelation: "ngos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ngos: {
+        Row: {
+          city: string
+          created_at: string
+          description: string | null
+          id: string
+          meals_distributed: number
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          meals_distributed?: number
+          name: string
+          owner_id: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          meals_distributed?: number
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          ngo_id: string
+          restaurant_id: string
+          stars: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          ngo_id: string
+          restaurant_id: string
+          stars: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          ngo_id?: string
+          restaurant_id?: string
+          stars?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_ngo_id_fkey"
+            columns: ["ngo_id"]
+            isOneToOne: false
+            referencedRelation: "ngos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurants: {
+        Row: {
+          city: string
+          created_at: string
+          description: string | null
+          id: string
+          meals_rescued: number
+          name: string
+          owner_id: string
+          rating_count: number
+          rating_sum: number
+        }
+        Insert: {
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          meals_rescued?: number
+          name: string
+          owner_id: string
+          rating_count?: number
+          rating_sum?: number
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          meals_rescued?: number
+          name?: string
+          owner_id?: string
+          rating_count?: number
+          rating_sum?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "restaurant" | "ngo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +362,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "restaurant", "ngo"],
+    },
   },
 } as const
