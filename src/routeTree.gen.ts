@@ -9,38 +9,101 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
+import { Route as DashboardRestaurantRouteImport } from './routes/dashboard.restaurant'
+import { Route as DashboardNgoRouteImport } from './routes/dashboard.ngo'
 
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardUserRoute = DashboardUserRouteImport.update({
+  id: '/dashboard/user',
+  path: '/dashboard/user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRestaurantRoute = DashboardRestaurantRouteImport.update({
+  id: '/dashboard/restaurant',
+  path: '/dashboard/restaurant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardNgoRoute = DashboardNgoRouteImport.update({
+  id: '/dashboard/ngo',
+  path: '/dashboard/ngo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/dashboard/ngo': typeof DashboardNgoRoute
+  '/dashboard/restaurant': typeof DashboardRestaurantRoute
+  '/dashboard/user': typeof DashboardUserRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/dashboard/ngo': typeof DashboardNgoRoute
+  '/dashboard/restaurant': typeof DashboardRestaurantRoute
+  '/dashboard/user': typeof DashboardUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/dashboard/ngo': typeof DashboardNgoRoute
+  '/dashboard/restaurant': typeof DashboardRestaurantRoute
+  '/dashboard/user': typeof DashboardUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/leaderboard'
+    | '/dashboard/ngo'
+    | '/dashboard/restaurant'
+    | '/dashboard/user'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/dashboard/ngo'
+    | '/dashboard/restaurant'
+    | '/dashboard/user'
+  id:
+    | '__root__'
+    | '/'
+    | '/leaderboard'
+    | '/dashboard/ngo'
+    | '/dashboard/restaurant'
+    | '/dashboard/user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  DashboardNgoRoute: typeof DashboardNgoRoute
+  DashboardRestaurantRoute: typeof DashboardRestaurantRoute
+  DashboardUserRoute: typeof DashboardUserRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +111,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/user': {
+      id: '/dashboard/user'
+      path: '/dashboard/user'
+      fullPath: '/dashboard/user'
+      preLoaderRoute: typeof DashboardUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/restaurant': {
+      id: '/dashboard/restaurant'
+      path: '/dashboard/restaurant'
+      fullPath: '/dashboard/restaurant'
+      preLoaderRoute: typeof DashboardRestaurantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/ngo': {
+      id: '/dashboard/ngo'
+      path: '/dashboard/ngo'
+      fullPath: '/dashboard/ngo'
+      preLoaderRoute: typeof DashboardNgoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  DashboardNgoRoute: DashboardNgoRoute,
+  DashboardRestaurantRoute: DashboardRestaurantRoute,
+  DashboardUserRoute: DashboardUserRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
