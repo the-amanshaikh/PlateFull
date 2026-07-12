@@ -230,9 +230,15 @@ function NewDonationModal({ kind, restaurantId, onClose }: { kind: "donation" | 
           e.preventDefault();
           setBusy(true); setErr(null);
           const expires_at = new Date(Date.now() + minutes * 60_000).toISOString();
-          const payload = kind === "donation"
-            ? { restaurant_id: restaurantId, kind, title, meals, expires_at }
-            : { restaurant_id: restaurantId, kind, title, meals, price_cents: Math.round(price * 100), original_price_cents: Math.round(original * 100), expires_at };
+          const payload = {
+            restaurant_id: restaurantId,
+            kind,
+            title,
+            meals,
+            expires_at,
+            price_cents: kind === "flash_sale" ? Math.round(price * 100) : null,
+            original_price_cents: kind === "flash_sale" ? Math.round(original * 100) : null,
+          };
           const { error } = await supabase.from("donations").insert(payload);
           setBusy(false);
           if (error) { setErr(error.message); return; }
