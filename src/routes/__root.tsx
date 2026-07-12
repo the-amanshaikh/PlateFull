@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider } from "@/hooks/use-auth";
 
 function NotFoundComponent() {
   return (
@@ -59,9 +60,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Reserva — Rescuing Food, Feeding the Future" },
-      { name: "description", content: "Reserva connects restaurants, NGOs, and everyday people to eliminate food waste and fight hunger through real-time surplus donations and flash discounts." },
-      { property: "og:title", content: "Reserva — Rescuing Food, Feeding the Future" },
+      { title: "PlateFull — Rescuing Food, Feeding the Future" },
+      { name: "description", content: "PlateFull connects restaurants, NGOs, and everyday people to eliminate food waste and fight hunger through real-time surplus donations and flash discounts." },
+      { property: "og:title", content: "PlateFull — Rescuing Food, Feeding the Future" },
       { property: "og:description", content: "A premium marketplace uniting restaurants, NGOs, and everyday users to end food waste." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -98,7 +99,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
