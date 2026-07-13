@@ -33,12 +33,6 @@ const roles = [
   { to: "/dashboard/ngo", icon: HeartHandshake, tag: "For NGOs", title: "Get started as an NGO", body: "Get real-time alerts when partners have food to give. Claim, collect, rate.", accent: "emerald" as const },
 ];
 
-const stats = [
-  { k: "2.4M", v: "meals rescued" },
-  { k: "1,280", v: "restaurant partners" },
-  { k: "340+", v: "NGOs onboarded" },
-  { k: "94%", v: "claim rate" },
-];
 
 function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
