@@ -16,12 +16,16 @@ export type Database = {
     Tables: {
       donations: {
         Row: {
+          address: string
           claimed_at: string | null
           claimed_by_ngo_id: string | null
           created_at: string
           expires_at: string
           id: string
+          image_url: string | null
           kind: string
+          lat: number | null
+          lng: number | null
           meals: number
           original_price_cents: number | null
           price_cents: number | null
@@ -30,12 +34,16 @@ export type Database = {
           title: string
         }
         Insert: {
+          address?: string
           claimed_at?: string | null
           claimed_by_ngo_id?: string | null
           created_at?: string
           expires_at: string
           id?: string
+          image_url?: string | null
           kind: string
+          lat?: number | null
+          lng?: number | null
           meals?: number
           original_price_cents?: number | null
           price_cents?: number | null
@@ -44,12 +52,16 @@ export type Database = {
           title: string
         }
         Update: {
+          address?: string
           claimed_at?: string | null
           claimed_by_ngo_id?: string | null
           created_at?: string
           expires_at?: string
           id?: string
+          image_url?: string | null
           kind?: string
+          lat?: number | null
+          lng?: number | null
           meals?: number
           original_price_cents?: number | null
           price_cents?: number | null
@@ -170,6 +182,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          lat: number | null
+          lng: number | null
           meals_rescued: number
           name: string
           owner_id: string
@@ -181,6 +195,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           meals_rescued?: number
           name: string
           owner_id: string
@@ -192,11 +208,49 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           meals_rescued?: number
           name?: string
           owner_id?: string
           rating_count?: number
           rating_sum?: number
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_id: string
+          author_name: string
+          author_role: string
+          comment: string
+          created_at: string
+          id: string
+          stars: number
+          target_id: string
+          target_type: Database["public"]["Enums"]["review_target"]
+        }
+        Insert: {
+          author_id: string
+          author_name?: string
+          author_role?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          stars: number
+          target_id: string
+          target_type: Database["public"]["Enums"]["review_target"]
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          author_role?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          stars?: number
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["review_target"]
         }
         Relationships: []
       }
@@ -236,6 +290,7 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "restaurant" | "ngo"
+      review_target: "restaurant" | "ngo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -364,6 +419,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "restaurant", "ngo"],
+      review_target: ["restaurant", "ngo"],
     },
   },
 } as const
