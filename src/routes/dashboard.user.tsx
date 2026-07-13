@@ -5,6 +5,7 @@ import { MapPin, Star, Flame, Heart, Search } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { Countdown } from "@/components/countdown";
 import { supabase } from "@/integrations/supabase/client";
+import { ReviewsButton } from "@/components/reviews-panel";
 
 export const Route = createFileRoute("/dashboard/user")({
   head: () => ({
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/dashboard/user")({
 type Offer = {
   id: string; title: string; kind: "donation" | "flash_sale"; meals: number;
   price_cents: number | null; original_price_cents: number | null; expires_at: string; status: string;
-  restaurant_id: string;
+  restaurant_id: string; image_url: string | null; address: string | null;
 };
 type Restaurant = { id: string; name: string; city: string; rating_sum: number; rating_count: number };
 
