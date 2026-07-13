@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Bell, Building2, Star, CheckCircle2, Package, Users, HeartHandshake, Gift, Zap } from "lucide-react";
+import { Bell, Building2, Star, CheckCircle2, Package, Users, HeartHandshake, Gift, Zap, MapPin, Truck, Sparkles } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { Countdown } from "@/components/countdown";
 import { SignInGate } from "@/components/sign-in-gate";
+import { ClientOnly } from "@/components/client-only";
+import { StatusTracker, nextStatus, statusLabel, type DonationStatus } from "@/components/status-tracker";
+import { ReviewsPanel, ReviewsButton } from "@/components/reviews-panel";
+import { DonationMap, type MapPin as PinT } from "@/components/donation-map";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,14 +16,20 @@ export const Route = createFileRoute("/dashboard/ngo")({
   head: () => ({
     meta: [
       { title: "NGO dashboard — PlateFull" },
-      { name: "description", content: "Real-time donations, alerts, and restaurant ratings for verified NGOs." },
+      { name: "description", content: "Live map, real-time donations, pickup tracking, and restaurant reviews." },
     ],
   }),
   component: NGODashboard,
 });
 
 type NGO = { id: string; name: string; city: string; meals_distributed: number };
-type Donation = { id: string; title: string; kind: "donation" | "flash_sale"; meals: number; expires_at: string; status: string; restaurant_id: string };
+type Donation = {
+  id: string; title: string; kind: "donation" | "flash_sale"; meals: number;
+  expires_at: string; status: DonationStatus; restaurant_id: string;
+  image_url: string | null; address: string | null;
+  lat: number | null; lng: number | null;
+  claimed_by_ngo_id: string | null;
+};
 type Restaurant = { id: string; name: string; city: string };
 
 function NGODashboard() {
@@ -37,7 +47,7 @@ function NGODashboard() {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.from("donations").select("*").order("created_at", { ascending: false }).limit(50);
+      const { data } = await supabase.from("donations").select("*").order("created_at", { ascending: false }).limit(80);
       const list = (data ?? []) as Donation[];
       setDonations(list);
       const ids = Array.from(new Set(list.map(d => d.restaurant_id)));
@@ -78,7 +88,19 @@ function NGODashboard() {
   }
 
   const activeAlerts = donations.filter(d => d.status === "active");
+  const myClaims = donations.filter(d => d.claimed_by_ngo_id === ngo.id && d.status !== "collected" && d.status !== "expired");
   const partners = Object.values(restaurants);
+  const mapPins: PinT[] = donations
+    .filter((d) => d.status === "active" && d.lat != null && d.lng != null)
+    .map((d) => ({
+      id: d.id,
+      lat: d.lat as number,
+      lng: d.lng as number,
+      title: `${restaurants[d.restaurant_id]?.name ?? ""} · ${d.title}`,
+      subtitle: `${d.meals} meals · ${d.address ?? ""}`,
+      kind: d.kind,
+      onClaim: () => claim(d.id),
+    }));
 
   const rate = async (restaurantId: string, stars: number) => {
     const prev = ratings[restaurantId];
@@ -90,9 +112,15 @@ function NGODashboard() {
     }
   };
 
-  const claim = async (id: string) => {
-    await supabase.from("donations").update({ status: "claimed", claimed_by_ngo_id: ngo.id }).eq("id", id);
-  };
+  async function claim(id: string) {
+    await supabase.from("donations").update({ status: "claimed", claimed_by_ngo_id: ngo!.id }).eq("id", id);
+  }
+
+  async function advance(d: Donation) {
+    const next = nextStatus(d.status);
+    if (!next) return;
+    await supabase.from("donations").update({ status: next }).eq("id", d.id);
+  }
 
   return (
     <div className="min-h-screen">
@@ -138,7 +166,7 @@ function NGODashboard() {
           {[
             { icon: Package, label: "Meals distributed", value: ngo.meals_distributed.toLocaleString() },
             { icon: Users, label: "Active offers", value: activeAlerts.length },
-            { icon: CheckCircle2, label: "Claimed", value: donations.filter(d => d.status === "claimed").length },
+            { icon: CheckCircle2, label: "In progress", value: myClaims.length },
             { icon: HeartHandshake, label: "Partners", value: partners.length },
           ].map((s) => (
             <div key={s.label} className="glass rounded-2xl p-5">
@@ -148,6 +176,53 @@ function NGODashboard() {
             </div>
           ))}
         </div>
+
+        {/* Live map */}
+        <div className="glass mt-8 rounded-3xl p-4 md:p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-display text-xl">Nearby surplus map</h3>
+              <p className="text-xs text-muted-foreground">Pins update in realtime as restaurants post surplus.</p>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1 text-xs text-primary"><MapPin className="h-3 w-3" /> {mapPins.length} pinned</span>
+          </div>
+          <ClientOnly fallback={<div className="grid h-[380px] place-items-center rounded-3xl border border-white/10 text-sm text-muted-foreground">Loading map…</div>}>
+            <DonationMap pins={mapPins} />
+          </ClientOnly>
+          {mapPins.length === 0 && (
+            <p className="mt-3 text-center text-xs text-muted-foreground">Restaurants can add a pickup pin when they post — those will appear here.</p>
+          )}
+        </div>
+
+        {/* My active pickups with tracker */}
+        {myClaims.length > 0 && (
+          <div className="glass mt-8 rounded-3xl p-6">
+            <h3 className="font-display text-xl">Your pickups</h3>
+            <p className="text-xs text-muted-foreground">Track pickup progress in realtime.</p>
+            <div className="mt-4 space-y-4">
+              {myClaims.map((d) => (
+                <div key={d.id} className="rounded-2xl border border-white/5 bg-white/5 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-black/30">
+                      {d.image_url ? <img src={d.image_url} alt={d.title} className="h-full w-full object-cover" /> : <div className="grid h-full w-full place-items-center text-primary"><Gift className="h-5 w-5" /></div>}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{restaurants[d.restaurant_id]?.name ?? "…"} · {d.title}</div>
+                      <div className="text-xs text-muted-foreground">{d.meals} meals{d.address ? ` · ${d.address}` : ""}</div>
+                    </div>
+                    <button
+                      onClick={() => advance(d)}
+                      className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-110"
+                    >
+                      {d.status === "claimed" ? (<><Truck className="mr-1 inline h-3 w-3" /> Out for pickup</>) : (<><Sparkles className="mr-1 inline h-3 w-3" /> Mark received</>)}
+                    </button>
+                  </div>
+                  <div className="mt-4"><StatusTracker status={d.status} /></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="glass rounded-3xl p-6 lg:col-span-2">
@@ -169,12 +244,18 @@ function NGODashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-xl border border-white/5 bg-white/5 p-3 md:flex md:flex-wrap"
                 >
-                  <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${a.kind === "donation" ? "bg-primary/20 text-primary" : "bg-accent/20 text-accent"}`}>
-                    {a.kind === "donation" ? <Gift className="h-4 w-4" /> : <Zap className="h-4 w-4" />}
+                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-black/30">
+                    {a.image_url ? (
+                      <img src={a.image_url} alt={a.title} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className={`grid h-full w-full place-items-center ${a.kind === "donation" ? "text-primary" : "text-accent"}`}>
+                        {a.kind === "donation" ? <Gift className="h-4 w-4" /> : <Zap className="h-4 w-4" />}
+                      </div>
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium">{restaurants[a.restaurant_id]?.name ?? "…"} · {a.title}</div>
-                    <div className="text-xs text-muted-foreground">{a.meals} meals · {a.status}</div>
+                    <div className="text-xs text-muted-foreground">{a.meals} meals · {statusLabel(a.status)}</div>
                   </div>
                   <div className="col-span-3 flex items-center justify-between gap-3 md:col-span-1">
                     <Countdown target={new Date(a.expires_at).getTime()} tone={a.kind === "donation" ? "emerald" : "gold"} />
@@ -183,7 +264,7 @@ function NGODashboard() {
                       onClick={() => claim(a.id)}
                       className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-110 disabled:opacity-40"
                     >
-                      {a.status === "claimed" ? "Claimed" : "Claim"}
+                      {a.status === "active" ? "Claim" : statusLabel(a.status)}
                     </button>
                   </div>
                 </motion.div>
@@ -192,8 +273,8 @@ function NGODashboard() {
           </div>
 
           <div className="glass rounded-3xl p-6">
-            <h3 className="font-display text-xl">Rate partners</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Your ratings boost their reputation.</p>
+            <h3 className="font-display text-xl">Rate & review partners</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Your feedback boosts their reputation.</p>
             <div className="mt-4 space-y-4">
               {partners.length === 0 && <p className="text-xs text-muted-foreground">No partners yet.</p>}
               {partners.map((p) => {
@@ -202,18 +283,26 @@ function NGODashboard() {
                   <div key={p.id} className="rounded-2xl border border-white/5 bg-white/5 p-4">
                     <div className="text-sm font-medium">{p.name}</div>
                     <div className="text-xs text-muted-foreground">{p.city || "—"}</div>
-                    <div className="mt-3 flex gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <button key={i} onClick={() => rate(p.id, i + 1)} className="transition hover:scale-110" aria-label={`Rate ${i + 1}`}>
-                          <Star className={`h-5 w-5 ${i < current ? "fill-accent text-accent" : "text-muted-foreground/30"}`} />
-                        </button>
-                      ))}
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <div className="flex gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <button key={i} onClick={() => rate(p.id, i + 1)} className="transition hover:scale-110" aria-label={`Rate ${i + 1}`}>
+                            <Star className={`h-5 w-5 ${i < current ? "fill-accent text-accent" : "text-muted-foreground/30"}`} />
+                          </button>
+                        ))}
+                      </div>
+                      <ReviewsButton targetType="restaurant" targetId={p.id} targetName={p.name} />
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
+        </div>
+
+        {/* Reviews for this NGO */}
+        <div className="glass mt-8 rounded-3xl p-6">
+          <ReviewsPanel targetType="ngo" targetId={ngo.id} targetName={ngo.name} />
         </div>
       </section>
     </div>
