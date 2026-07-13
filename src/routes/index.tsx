@@ -101,20 +101,6 @@ function Home() {
             <MagneticLink to="/leaderboard">See the leaderboard</MagneticLink>
           </motion.div>
 
-          {/* Stats bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="glass-strong mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-6 rounded-3xl p-6 md:mt-20 md:grid-cols-4 md:p-8"
-          >
-            {stats.map((s) => (
-              <div key={s.v} className="text-center">
-                <div className="font-display text-3xl text-gradient-emerald md:text-4xl">{s.k}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{s.v}</div>
-              </div>
-            ))}
-          </motion.div>
         </motion.div>
       </section>
 
