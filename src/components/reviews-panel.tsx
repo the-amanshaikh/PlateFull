@@ -104,7 +104,7 @@ export function ReviewsPanel({
         </div>
       </div>
 
-      {user && (
+      {user && !isSelf && (
         <div className="rounded-2xl border border-white/5 bg-white/5 p-3">
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -132,6 +132,11 @@ export function ReviewsPanel({
             </button>
           </div>
           {err && <p className="mt-2 text-xs text-destructive">{err}</p>}
+        </div>
+      )}
+      {user && isSelf && (
+        <div className="rounded-2xl border border-dashed border-white/10 p-3 text-xs text-muted-foreground">
+          This is your public profile — reviews come from others.
         </div>
       )}
       {!user && (
