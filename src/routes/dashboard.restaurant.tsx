@@ -180,7 +180,7 @@ function RestaurantDashboard() {
           </div>
 
           <div className="glass rounded-3xl p-6">
-            <ReviewsPanel targetType="restaurant" targetId={restaurant.id} targetName={restaurant.name} />
+            <ReviewsPanel targetType="restaurant" targetId={restaurant.id} targetName={restaurant.name} ownerUserId={user?.id} />
           </div>
         </div>
       </section>
