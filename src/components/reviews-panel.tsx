@@ -20,14 +20,17 @@ export function ReviewsPanel({
   targetType,
   targetId,
   targetName,
+  ownerUserId,
   compact = false,
 }: {
   targetType: ReviewTarget;
   targetId: string;
   targetName?: string;
+  ownerUserId?: string | null;
   compact?: boolean;
 }) {
   const { user, role } = useAuth();
+  const isSelf = !!user && !!ownerUserId && user.id === ownerUserId;
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stars, setStars] = useState(5);
   const [comment, setComment] = useState("");
