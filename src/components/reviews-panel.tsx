@@ -183,6 +183,7 @@ export function ReviewsButton(props: {
   targetType: ReviewTarget;
   targetId: string;
   targetName?: string;
+  ownerUserId?: string | null;
   label?: string;
 }) {
   const [open, setOpen] = useState(false);
