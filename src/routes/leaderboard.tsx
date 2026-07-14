@@ -132,14 +132,13 @@ function LeaderboardPage() {
                 {/* Radiant halo behind #1 */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
-                  className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-                  style={{ background: "radial-gradient(circle, hsl(var(--accent) / 0.35), transparent 60%)" }}
+                  className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/30 blur-3xl"
                 />
-                {/* Rotating conic ring */}
+                {/* Rotating shimmer ring */}
                 <motion.div
                   animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                  className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
-                  style={{ background: "conic-gradient(from 0deg, transparent, hsl(var(--accent) / 0.6), transparent, hsl(var(--primary) / 0.5), transparent)" }}
+                  className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent/20 opacity-40"
+                  style={{ borderTopColor: "transparent", borderRightWidth: 2 }}
                 />
 
                 <div className="grid gap-6 md:grid-cols-3 md:items-end">
