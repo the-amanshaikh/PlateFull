@@ -20,14 +20,17 @@ export function ReviewsPanel({
   targetType,
   targetId,
   targetName,
+  ownerUserId,
   compact = false,
 }: {
   targetType: ReviewTarget;
   targetId: string;
   targetName?: string;
+  ownerUserId?: string | null;
   compact?: boolean;
 }) {
   const { user, role } = useAuth();
+  const isSelf = !!user && !!ownerUserId && user.id === ownerUserId;
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stars, setStars] = useState(5);
   const [comment, setComment] = useState("");
@@ -101,7 +104,7 @@ export function ReviewsPanel({
         </div>
       </div>
 
-      {user && (
+      {user && !isSelf && (
         <div className="rounded-2xl border border-white/5 bg-white/5 p-3">
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -129,6 +132,11 @@ export function ReviewsPanel({
             </button>
           </div>
           {err && <p className="mt-2 text-xs text-destructive">{err}</p>}
+        </div>
+      )}
+      {user && isSelf && (
+        <div className="rounded-2xl border border-dashed border-white/10 p-3 text-xs text-muted-foreground">
+          This is your public profile — reviews come from others.
         </div>
       )}
       {!user && (
@@ -175,6 +183,7 @@ export function ReviewsButton(props: {
   targetType: ReviewTarget;
   targetId: string;
   targetName?: string;
+  ownerUserId?: string | null;
   label?: string;
 }) {
   const [open, setOpen] = useState(false);

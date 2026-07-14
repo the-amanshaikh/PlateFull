@@ -180,7 +180,7 @@ function RestaurantDashboard() {
           </div>
 
           <div className="glass rounded-3xl p-6">
-            <ReviewsPanel targetType="restaurant" targetId={restaurant.id} targetName={restaurant.name} />
+            <ReviewsPanel targetType="restaurant" targetId={restaurant.id} targetName={restaurant.name} ownerUserId={user?.id} />
           </div>
         </div>
       </section>
@@ -282,7 +282,10 @@ function NewDonationModal({ kind, restaurantId, userId, onClose }: { kind: "dona
             const path = `${userId}/${crypto.randomUUID()}.${ext}`;
             const up = await supabase.storage.from("donation-images").upload(path, file, { contentType: file.type, upsert: false });
             if (up.error) { setErr(up.error.message); setBusy(false); return; }
-            image_url = supabase.storage.from("donation-images").getPublicUrl(path).data.publicUrl;
+            // Bucket is private (workspace blocks public buckets); use a long-lived signed URL
+            const signed = await supabase.storage.from("donation-images").createSignedUrl(path, 60 * 60 * 24 * 365);
+            if (signed.error) { setErr(signed.error.message); setBusy(false); return; }
+            image_url = signed.data.signedUrl;
           }
           const expires_at = new Date(Date.now() + minutes * 60_000).toISOString();
           const payload = {

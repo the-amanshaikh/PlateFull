@@ -302,7 +302,7 @@ function NGODashboard() {
 
         {/* Reviews for this NGO */}
         <div className="glass mt-8 rounded-3xl p-6">
-          <ReviewsPanel targetType="ngo" targetId={ngo.id} targetName={ngo.name} />
+          <ReviewsPanel targetType="ngo" targetId={ngo.id} targetName={ngo.name} ownerUserId={user?.id} />
         </div>
       </section>
     </div>
