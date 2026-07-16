@@ -65,9 +65,23 @@ export function SiteNav() {
             </Link>
           )}
         </div>
-        <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
-          <Menu className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          {!user && (
+            <Link
+              to="/auth"
+              className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-lg shadow-primary/30"
+            >
+              Sign in
+            </Link>
+          )}
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+            className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+        </div>
       </nav>
       {open && (
         <div className="glass mt-2 flex flex-col gap-1 rounded-2xl p-2 md:hidden">
