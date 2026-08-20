@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Leaf, Store, Users, HeartHandshake } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/auth")({
@@ -76,9 +75,12 @@ function AuthPage() {
     setMsg(null);
     // Store desired role in localStorage so we can apply it after redirect if new user
     if (mode === "signup") localStorage.setItem("platefull:pending_role", selectedRole);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
-    if (result.error) {
-      setMsg(result.error.message);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + "/auth" },
+    });
+    if (error) {
+      setMsg(error.message);
       setBusy(false);
     }
   };
