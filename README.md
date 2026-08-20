@@ -2,8 +2,6 @@
 
 > Rescuing food, feeding the future. A real-time surplus rescue network connecting restaurants, NGOs, and everyday users to end food waste.
 
-![PlateFull Banner](public/favicon.ico) <!-- Placeholder for a real banner -->
-
 PlateFull is a premium platform built with **Vite, React, TanStack Start (SSR), and Supabase** that tackles food waste head-on. It provides a real-time marketplace where restaurants can post surplus food (either as donations or flash sales), and NGOs or users can claim them instantly.
 
 ## 🚀 Features
