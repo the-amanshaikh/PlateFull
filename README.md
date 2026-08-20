@@ -21,16 +21,59 @@ The application is built using a modern SSR (Server-Side Rendering) architecture
 
 ```mermaid
 graph TD
-    Client[Client Browser]
-    Vercel[Vercel Serverless Edge / Node]
-    SupabaseDB[(Supabase PostgreSQL)]
-    SupabaseAuth[Supabase Auth]
-    SupabaseRealtime[Supabase Realtime]
+    %% Actors
+    subgraph Users ["👥 Platform Actors"]
+        R[🏪 Restaurant]
+        N[🤝 NGO]
+        U[🧑 Everyday User]
+    end
 
-    Client <-->|React, Framer Motion, TanStack Router| Vercel
-    Vercel <-->|TanStack Start SSR, Nitro| SupabaseDB
-    Client <-->|Direct Auth & Websockets| SupabaseAuth
-    Client <-->|Live Updates| SupabaseRealtime
+    %% Frontend App
+    subgraph Frontend ["💻 Frontend (React 19, Tailwind 4, Framer Motion)"]
+        RD[Restaurant Dashboard<br/>- Post surplus food<br/>- Track impact]
+        ND[NGO Dashboard<br/>- Live map view<br/>- Claim donations]
+        UD[User Feed<br/>- Find nearby discounts<br/>- Countdown timers]
+        
+        R -->|Posts Surplus| RD
+        N -->|Claims Food| ND
+        U -->|Buys Discounts| UD
+    end
+
+    %% Backend & Realtime
+    subgraph Serverless ["⚡ Serverless & SSR (Vercel + TanStack Start)"]
+        API[API & Server Components]
+    end
+
+    %% Database
+    subgraph Backend ["🗄️ Backend Infrastructure (Supabase)"]
+        DB[(PostgreSQL Database)<br/>- Profiles & Roles<br/>- Active Donations<br/>- Ratings & Impact]
+        Auth[🔒 Authentication & RLS]
+        WS[🔌 Realtime WebSockets]
+    end
+
+    %% Flow connections
+    RD -->|Secure API Call| API
+    ND -.->|Secure API Call| API
+    UD -.->|Secure API Call| API
+
+    API -->|Validates via| Auth
+    Auth -->|CRUD Operations| DB
+
+    %% Realtime magic
+    DB -->|DB Triggers Update| WS
+    WS == "Live Websocket Push" ==> ND
+    WS == "Live Websocket Push" ==> UD
+    
+    %% Styling
+    classDef actor fill:#f3f4f6,stroke:#374151,stroke-width:2px,color:#000
+    classDef front fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#000
+    classDef back fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#000
+    classDef db fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#000
+    
+    class R,N,U actor
+    class RD,ND,UD front
+    class API,WS back
+    class DB,Auth db
 ```
 
 ## 🛠️ Tech Stack
