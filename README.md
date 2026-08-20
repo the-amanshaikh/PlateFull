@@ -30,9 +30,9 @@ graph TD
 
     %% Frontend App
     subgraph Frontend ["💻 Frontend (React 19, Tailwind 4, Framer Motion)"]
-        RD[Restaurant Dashboard<br/>- Post surplus food<br/>- Track impact]
-        ND[NGO Dashboard<br/>- Live map view<br/>- Claim donations]
-        UD[User Feed<br/>- Find nearby discounts<br/>- Countdown timers]
+        RD["Restaurant Dashboard<br/>- Post surplus food<br/>- Track impact"]
+        ND["NGO Dashboard<br/>- Live map view<br/>- Claim donations"]
+        UD["User Feed<br/>- Find nearby discounts<br/>- Countdown timers"]
         
         R -->|Posts Surplus| RD
         N -->|Claims Food| ND
@@ -41,14 +41,14 @@ graph TD
 
     %% Backend & Realtime
     subgraph Serverless ["⚡ Serverless & SSR (Vercel + TanStack Start)"]
-        API[API & Server Components]
+        API["API & Server Components"]
     end
 
     %% Database
     subgraph Backend ["🗄️ Backend Infrastructure (Supabase)"]
-        DB[(PostgreSQL Database)<br/>- Profiles & Roles<br/>- Active Donations<br/>- Ratings & Impact]
-        Auth[🔒 Authentication & RLS]
-        WS[🔌 Realtime WebSockets]
+        DB[("PostgreSQL Database<br/>- Profiles & Roles<br/>- Active Donations<br/>- Ratings & Impact")]
+        Auth["🔒 Authentication & RLS"]
+        WS["🔌 Realtime WebSockets"]
     end
 
     %% Flow connections
